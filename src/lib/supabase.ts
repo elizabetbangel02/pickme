@@ -7,19 +7,27 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-a
 // Create a mock client if no real Supabase credentials are provided
 const isDemo = !import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Mock query builder that supports method chaining
+const createMockQueryBuilder = () => {
+  const mockBuilder = {
+    select: () => mockBuilder,
+    insert: () => mockBuilder,
+    update: () => mockBuilder,
+    delete: () => mockBuilder,
+    eq: () => mockBuilder,
+    or: () => mockBuilder,
+    order: () => mockBuilder,
+    limit: () => mockBuilder,
+    single: () => Promise.resolve({ data: null, error: null }),
+    then: (resolve: any) => resolve({ data: [], error: null })
+  };
+  return mockBuilder;
+};
+
 export const supabase = isDemo ? 
   // Mock Supabase client for demo mode
   {
-    from: () => ({
-      select: () => ({ data: [], error: null }),
-      insert: () => ({ data: null, error: null }),
-      update: () => ({ data: null, error: null }),
-      delete: () => ({ data: null, error: null }),
-      eq: () => ({ data: [], error: null }),
-      order: () => ({ data: [], error: null }),
-      limit: () => ({ data: [], error: null }),
-      single: () => ({ data: null, error: null })
-    }),
+    from: () => createMockQueryBuilder(),
     auth: {
       signUp: () => Promise.resolve({ data: null, error: null }),
       signIn: () => Promise.resolve({ data: null, error: null }),
